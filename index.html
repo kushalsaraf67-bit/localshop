@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusLocal | NIT Patna Food Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CUSTOMER ONBOARDING MODAL (BLOCKING) -->
+    <div id="onboarding-modal" class="fixed inset-0 bg-gray-900/95 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-center mb-4">
+                <div class="bg-emerald-100 p-3 rounded-full text-emerald-600">
+                    <i class="fas fa-map-marker-alt text-2xl"></i>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-center text-gray-900 mb-2">Welcome to CampusLocal</h2>
+            <p class="text-sm text-center text-gray-500 mb-6">NIT Patna's 1km Food Delivery. Please set up your delivery
+                profile to continue.</p>
+
+            <form id="start-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="cust-name" placeholder="e.g. Rahul Kumar" required
+                        class="w-full border rounded-lg px-4 py-2 outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Mobile Number</label>
+                    <input type="tel" id="cust-mobile" placeholder="10-digit mobile number" required pattern="[0-9]{10}"
+                        class="w-full border rounded-lg px-4 py-2 outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Hostel & Room No. / Flat Address</label>
+                    <input type="text" id="cust-address" placeholder="e.g. Kosi Hostel, Room 212" required
+                        class="w-full border rounded-lg px-4 py-2 outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Live Location (Mandatory)</label>
+                    <button type="button" id="btn-location" onclick="captureLocation()"
+                        class="w-full bg-blue-100 text-blue-700 py-2.5 rounded-lg font-bold flex justify-center items-center hover:bg-blue-200 transition">
+                        <i class="fas fa-crosshairs mr-2"></i> Use My Current Location
+                    </button>
+                    <p id="loc-status" class="text-xs text-red-600 mt-2 hidden font-medium">
+                        <i class="fas fa-exclamation-circle mr-1"></i> Location access is required to proceed. Please
+                        allow GPS permissions in your browser.
+                    </p>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 mt-4 transition shadow-md">
+                    Start Ordering
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- NAVIGATION BAR -->
+    <!-- NAVIGATION BAR -->
+    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo -->
+                <div class="flex items-center cursor-pointer" onclick="showPage('home')">
+                    <div class="bg-emerald-600 p-2 rounded-lg mr-2 flex items-center justify-center">
+                        <i class="fas fa-leaf text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">CampusLocal<span
+                            class="text-emerald-600 text-sm ml-1">NITP</span></span>
+                </div>
+
+               <!-- Desktop Links -->
+                <div class="hidden md:flex items-center space-x-6 mr-4">
+                    <button onclick="showPage('salon')" class="text-sm font-bold text-emerald-600 hover:text-emerald-700"><i class="fas fa-cut mr-1"></i> Salon</button>
+                    <button onclick="showPage('my-bookings')" class="text-sm font-medium text-gray-500 hover:text-emerald-600">My Bookings</button>
+                    <button onclick="showPage('community')" class="text-sm font-medium text-gray-500 hover:text-emerald-600">Community</button>
+                    <button onclick="showPage('vendor-dashboard')" class="text-sm font-medium text-gray-500 hover:text-emerald-600">Dashboard</button>
+                    <button onclick="showPage('onboarding')" class="text-sm font-medium text-gray-500 hover:text-emerald-600">Register</button>
+                </div>
+
+                <!-- Right Side: Help, Cart & Mobile Toggle -->
+                <div class="flex items-center space-x-4 md:space-x-6">
+                    <a href="tel:8181916298"
+                        class="hidden md:flex items-center text-sm font-bold text-gray-500 hover:text-emerald-600 transition">
+                        <i class="fas fa-headset mr-2"></i> Need help? Call 8181916298
+                    </a>
+
+                    <button onclick="showPage('cart')"
+                        class="relative p-2 text-gray-800 hover:text-emerald-600 bg-gray-100 rounded-full h-10 w-10 flex items-center justify-center">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count"
+                            class="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Button (Hamburger) -->
+                    <button onclick="toggleMobileMenu()"
+                        class="md:hidden text-gray-600 hover:text-emerald-600 focus:outline-none p-2">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-white border-b absolute w-full left-0 top-16 shadow-lg z-40 pb-4 pt-2">
+            <div class="flex flex-col space-y-1 px-4">
+                <button onclick="showPage('home'); toggleMobileMenu()"
+                    class="text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">Home</button>
+                <button onclick="showPage('community'); toggleMobileMenu()"
+                    class="text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">Community</button>
+                <button onclick="showPage('vendor-dashboard'); toggleMobileMenu()"
+                    class="text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">Dashboard</button>
+                <button onclick="showPage('onboarding'); toggleMobileMenu()"
+                    class="text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">Register
+                    Shop</button>
+                    <button onclick="showPage('home'); toggleMobileMenu()" class="text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">Home</button>
+                <!-- Add these two new lines: -->
+                <button onclick="showPage('salon'); toggleMobileMenu()" class="text-left px-4 py-3 text-base font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg"><i class="fas fa-cut mr-2"></i> Book Salon</button>
+                <button onclick="showPage('my-bookings'); toggleMobileMenu()" class="text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg">My Bookings</button>
+                <a href="tel:8181916298"
+                    class="text-left px-4 py-3 text-base font-bold text-emerald-600 bg-emerald-50 rounded-lg mt-2 flex items-center">
+                    <i class="fas fa-headset mr-2"></i> Call Support (8181916298)
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-20 right-4 z-[100] flex flex-col gap-2"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-5xl mx-auto px-4 py-8">
+
+        <!-- 1. HOME / DISCOVERY PAGE -->
+        <section id="home" class="page">
+            <div class="relative rounded-3xl overflow-hidden mb-10 h-48 flex items-center bg-emerald-900">
+                <div
+                    class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=1000')] opacity-40 bg-cover bg-center">
+                </div>
+                <div class="relative z-10 px-8">
+                    <h1 class="text-3xl font-bold text-white mb-2">Craving something?</h1>
+                    <p class="text-emerald-100">Order from NIT Patna's favorite spots. Delivery within 1 km.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Campus Restaurants</h2>
+            </div>
+
+            <div id="vendor-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Vendors dynamically injected here -->
+            </div>
+        </section>
+
+        <!-- 2. VENDOR MENU PAGE -->
+        <section id="vendor-menu" class="page">
+            <button onclick="showPage('home')"
+                class="text-emerald-600 mb-6 flex items-center hover:underline font-medium">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Restaurants
+            </button>
+            <div id="menu-header" class="mb-8">
+                <!-- Dynamic Header -->
+            </div>
+
+            <h3 class="text-xl font-bold mb-4 border-b pb-2">Menu</h3>
+            <div id="menu-items-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Dynamic Items -->
+            </div>
+        </section>
+
+        <!-- 3. CART & CHECKOUT PAGE -->
+        <section id="cart" class="page">
+            <h2 class="text-2xl font-bold mb-6">Checkout</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+
+                    <!-- Items -->
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Your Items</div>
+                        <div id="cart-items" class="divide-y"></div>
+                        <div id="empty-cart-msg" class="p-10 text-center hidden">
+                            <p class="text-gray-500 mb-4">Your cart is empty.</p>
+                            <button onclick="showPage('home')"
+                                class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg font-medium">Browse
+                                Food</button>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Details (Pre-filled from GPS Modal) -->
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Delivery Details</div>
+                        <div class="p-5">
+                            <p class="text-gray-800 font-medium mb-1"><i
+                                    class="fas fa-user text-emerald-600 mr-2 w-4"></i> <span
+                                    id="checkout-name">...</span> (<span id="checkout-mobile">...</span>)</p>
+                            <p class="text-gray-600 text-sm mb-3"><i
+                                    class="fas fa-map-marker-alt text-emerald-600 mr-2 w-4"></i> <span
+                                    id="checkout-address-text">...</span></p>
+                            <div
+                                class="inline-flex items-center text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                                <i class="fas fa-location-arrow mr-1.5"></i> GPS Location Verified
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Options -->
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Payment Method</div>
+                        <div class="p-5 space-y-3">
+                            <label
+                                class="flex items-center p-3 border rounded-lg cursor-pointer bg-white hover:border-emerald-500 transition">
+                                <input type="radio" name="payment" value="cod" checked
+                                    class="mr-3 w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                <span class="font-medium text-gray-800">Cash on Delivery (COD)</span>
+                            </label>
+                            <label
+                                class="flex items-center p-3 border rounded-lg cursor-pointer bg-white hover:border-emerald-500 transition">
+                                <input type="radio" name="payment" value="upi"
+                                    class="mr-3 w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                                <div>
+                                    <span class="font-medium text-gray-800 block">UPI</span>
+                                    <span class="text-xs text-gray-500">(Mock Payment Gateway)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border h-fit sticky top-24">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Order Summary</h3>
+                    <div class="space-y-3 text-sm text-gray-600 mb-4">
+                        <div class="flex justify-between"><span>Item Total</span><span id="subtotal"
+                                class="font-medium">₹0</span></div>
+                        <div class="flex justify-between"><span>Delivery Fee</span><span class="font-medium">₹15</span>
+                        </div>
+                    </div>
+                    <div class="border-t pt-4 flex justify-between font-bold text-xl mb-6 text-gray-900">
+                        <span>To Pay</span><span id="total-price" class="text-emerald-600">₹0</span>
+                    </div>
+                    <button onclick="placeOrder()"
+                        class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md mb-4 text-lg">
+                        Place Order
+                    </button>
+
+                    <!-- Mobile / Secondary Help Link -->
+                    <div class="text-center pt-4 border-t">
+                        <a href="tel:8181916298"
+                            class="text-emerald-700 font-bold text-sm flex items-center justify-center hover:underline">
+                            <i class="fas fa-phone-alt mr-2 bg-emerald-100 p-2 rounded-full"></i> Need help? Call
+                            8181916298
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ORDER CONFIRMATION -->
+        <section id="confirmation" class="page text-center py-16">
+            <div
+                class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <i class="fas fa-check text-5xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold mb-2 text-gray-900">Order Successfully Placed!</h2>
+            <p class="text-gray-500 mb-8 max-w-md mx-auto">The restaurant has received your order. Delivery partner will
+                contact you shortly.</p>
+
+            <div class="max-w-sm mx-auto bg-white p-6 rounded-xl border text-left mb-8 shadow-sm">
+                <h4 class="font-bold border-b pb-2 mb-4 text-gray-800">Order Summary</h4>
+                <div id="summary-details" class="space-y-3 text-sm text-gray-600">
+                    <!-- Dynamic Summary -->
+                </div>
+            </div>
+
+            <button onclick="showPage('home')"
+                class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-700">Return to
+                Home</button>
+        </section>
+        <!-- 5. VENDOR DASHBOARD -->
+        <section id="vendor-dashboard" class="page">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Vendor Dashboard</h2>
+                    <p class="text-gray-500 text-sm">Manage incoming campus orders.</p>
+                </div>
+                <div class="flex space-x-4">
+                    <div class="bg-white px-4 py-2 rounded-lg border shadow-sm text-center">
+                        <p class="text-xs text-gray-400 uppercase font-bold">Total Orders</p>
+                        <p id="stat-orders" class="text-xl font-bold text-emerald-600">0</p>
+                    </div>
+                    <div class="bg-white px-4 py-2 rounded-lg border shadow-sm text-center">
+                        <p class="text-xs text-gray-400 uppercase font-bold">Revenue</p>
+                        <p id="stat-revenue" class="text-xl font-bold text-emerald-600">₹0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Order ID</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Customer Details</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Items</th>
+                            <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-orders-table" class="divide-y text-sm">
+                        <!-- Orders injected here via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. VENDOR ONBOARDING FORM -->
+        <section id="onboarding" class="page">
+            <div
+                class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col md:flex-row">
+                <div class="md:w-2/5 bg-emerald-700 p-8 text-white flex flex-col justify-center">
+                    <h2 class="text-3xl font-bold mb-3">Register Shop</h2>
+                    <p class="text-emerald-100 text-sm">Join NIT Patna's hyperlocal platform and reach students
+                        instantly!</p>
+                    <div class="mt-8 space-y-4 text-sm font-medium">
+                        <div class="flex items-center"><i class="fas fa-check-circle mr-3 text-emerald-300"></i> 0%
+                            Commission</div>
+                        <div class="flex items-center"><i class="fas fa-check-circle mr-3 text-emerald-300"></i> Easy
+                            Order Tracking</div>
+                        <div class="flex items-center"><i class="fas fa-check-circle mr-3 text-emerald-300"></i>
+                            Exclusive to 1km radius</div>
+                    </div>
+                </div>
+                <div class="md:w-3/5 p-8 bg-gray-50">
+                    <form id="onboarding-form" class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Vendor / Shop Name *</label>
+                            <input type="text" id="v-name" required
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-emerald-500"
+                                placeholder="e.g. NITP Maggi Point">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Category *</label>
+                            <select id="v-cat"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-emerald-500">
+                                <option>Fast Food</option>
+                                <option>Beverages</option>
+                                <option>Indian Snacks</option>
+                                <option>Groceries</option>
+                            </select>
+                        </div>
+
+                        <!-- NEW: Image Upload Field -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Shop Image (Optional)</label>
+                            <input type="file" id="v-image" accept="image/*"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:border-emerald-500 outline-none bg-white text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                            <p class="text-[10px] text-gray-400 mt-1">If empty, a default image will be used.</p>
+                        </div>
+
+                        <!-- NEW: Dynamic Menu Items -->
+                        <div class="p-4 bg-white border border-gray-200 rounded-xl">
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="block text-xs font-bold text-gray-700">Menu Items *</label>
+                                <button type="button" onclick="addMenuItemField()"
+                                    class="text-xs text-emerald-600 font-bold hover:underline bg-emerald-50 px-2 py-1 rounded">+
+                                    Add Another Item</button>
+                            </div>
+
+                            <!-- Container for items -->
+                            <div id="dynamic-menu-container" class="space-y-3">
+                                <div class="flex space-x-2 menu-item-row items-center">
+                                    <input type="text" required placeholder="Item Name (e.g. Veg Burger)"
+                                        class="w-2/3 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none item-name">
+                                    <input type="number" required placeholder="Price (₹)"
+                                        class="w-1/3 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none item-price">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md">Register
+                            Vendor</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. COMMUNITY PAGE -->
+        <section id="community" class="page">
+            <div class="flex justify-between items-end mb-8">
+                <h2 class="text-3xl font-bold text-gray-900">Campus Community</h2>
+                <button
+                    class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-200 transition">Post
+                    Update</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-5">
+                    <h3 class="font-bold text-xl border-b pb-2 text-gray-800">Recent Reviews</h3>
+
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <div class="flex items-center mb-3">
+                            <div
+                                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-600 mr-3">
+                                AK</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Amit Kumar</h4>
+                                <p class="text-xs text-gray-400">Hostel Kosi • ⭐⭐⭐⭐⭐ 5.0</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm italic">"Hotspot burgers are life-saving during end-sems! Super
+                            quick delivery right to the hostel gate."</p>
+                        <div
+                            class="mt-3 inline-block bg-gray-50 text-emerald-700 text-xs font-bold px-2 py-1 rounded border">
+                            @Hotspot</div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <div class="flex items-center mb-3">
+                            <div
+                                class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center font-bold text-purple-600 mr-3">
+                                SR</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Sneha Rajput</h4>
+                                <p class="text-xs text-gray-400">Ganga Hostel • ⭐⭐⭐⭐ 4.0</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm italic">"Cold coffee from Nescafe is perfect for evening labs.
+                            Arrived perfectly chilled."</p>
+                        <div
+                            class="mt-3 inline-block bg-gray-50 text-emerald-700 text-xs font-bold px-2 py-1 rounded border">
+                            @Nescafe</div>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <h3 class="font-bold text-xl border-b pb-2 text-gray-800">Announcements</h3>
+                    <div class="bg-amber-50 p-5 rounded-xl border border-amber-200">
+                        <div class="flex items-start">
+                            <i class="fas fa-bullhorn text-amber-600 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold text-amber-900 text-sm">SAC Canteen Timings</h4>
+                                <p class="text-xs text-amber-800 mt-1">SAC canteen will remain open until 2 AM during
+                                    the mid-sem exams this week!</p>
+                                <p class="text-[10px] text-amber-600 mt-3 font-bold uppercase">Campus Admin • 1 day ago
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 8. SALON BOOKING PAGE -->
+        <section id="salon" class="page">
+            <div class="bg-gray-900 rounded-3xl overflow-hidden mb-8 h-48 flex items-center relative">
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1000')] opacity-50 bg-cover bg-center"></div>
+                <div class="relative z-10 px-8">
+                    <h1 class="text-3xl font-bold text-white mb-2">Campus Style Salon</h1>
+                    <p class="text-emerald-200 text-sm"><i class="fas fa-map-marker-alt mr-1"></i> Near Student Activity Center • Open 9 AM - 6 PM</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Left: Services -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">1. Select Service</h3>
+                    <div id="salon-services-list" class="space-y-3">
+                        <!-- Services injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Date & Time Slots -->
+                <div class="bg-white p-6 rounded-2xl border shadow-sm h-fit">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">2. Select Date & Time</h3>
+                    
+                    <div class="mb-5">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Appointment Date</label>
+                        <input type="date" id="salon-date" onchange="renderSalonSlots()" class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-emerald-500 text-gray-700">
+                    </div>
+
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Available Time Slots</label>
+                    <div id="salon-slots-container" class="grid grid-cols-3 gap-2 mb-6">
+                        <!-- Slots injected via JS -->
+                    </div>
+                    
+                    <div class="flex items-center space-x-4 text-xs text-gray-500 mb-6">
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-white border border-gray-300 mr-1"></span> Available</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-600 mr-1"></span> Selected</div>
+                        <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-gray-100 border border-gray-200 mr-1"></span> Booked</div>
+                    </div>
+
+                    <button id="btn-book-salon" onclick="confirmSalonBooking()" disabled class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed">
+                        Confirm Appointment
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. SALON CONFIRMATION PAGE -->
+        <section id="salon-confirmation" class="page text-center py-16">
+            <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <i class="fas fa-calendar-check text-5xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold mb-2 text-gray-900">Appointment Confirmed!</h2>
+            <p class="text-gray-500 mb-8 max-w-md mx-auto">Your salon slot has been successfully booked. We will remind you 30 minutes before your appointment.</p>
+            
+            <div class="max-w-sm mx-auto bg-white p-6 rounded-xl border text-left mb-8 shadow-sm">
+                <h4 class="font-bold border-b pb-2 mb-4 text-gray-800">Booking Summary</h4>
+                <div id="salon-summary-details" class="space-y-3 text-sm text-gray-600">
+                    <!-- Dynamic Summary -->
+                </div>
+            </div>
+            <button onclick="showPage('my-bookings')" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-md">View My Bookings</button>
+        </section>
+
+        <!-- 10. MY BOOKINGS PAGE -->
+        <section id="my-bookings" class="page">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">My Bookings</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
+                <div class="p-4 border-b bg-gray-50 font-bold text-gray-700 flex justify-between items-center">
+                    <span>Upcoming Salon Appointments</span>
+                </div>
+                <div id="upcoming-bookings-list" class="divide-y">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden opacity-75">
+                <div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Past & Cancelled</div>
+                <div id="past-bookings-list" class="divide-y">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- 1. CORE DATA (Exactly 3 Vendors) ---
+        const vendors = [
+            {
+                id: 1, name: 'SAC Canteen', category: 'Indian Snacks', rating: 4.2, delivery_time: '20 mins',
+                image: 'https://images.unsplash.com/photo-1601050690597-df056fb0179a?auto=format&fit=crop&q=80&w=600',
+                menu: [
+                    { id: 101, name: 'Samosa (2 pcs)', price: 15, desc: 'Hot, crispy, and freshly fried' },
+                    { id: 102, name: 'Masala Dosa', price: 50, desc: 'Served with sambar and coconut chutney' },
+                    { id: 103, name: 'Veg Thali', price: 80, desc: 'Rice, Dal, 2 Roti, Seasonal Sabzi, Pickle' }
+                ]
+            },
+            {
+                id: 2, name: 'Hotspot', category: 'Fast Food', rating: 4.5, delivery_time: '25 mins',
+                image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&q=80&w=600',
+                menu: [
+                    { id: 201, name: 'Aloo Tikki Burger', price: 60, desc: 'Classic veg burger with mayo and veggies' },
+                    { id: 202, name: 'Veg Margherita Pizza', price: 120, desc: 'Personal size, loaded with mozzarella cheese' },
+                    { id: 203, name: 'Peri Peri Fries', price: 50, desc: 'Spicy and crispy potato fries' }
+                ]
+            },
+            {
+                id: 3, name: 'Nescafe', category: 'Beverages & Maggi', rating: 4.8, delivery_time: '15 mins',
+                image: 'https://images.unsplash.com/photo-1544787210-22bb2edb514d?auto=format&fit=crop&q=80&w=600',
+                menu: [
+                    { id: 301, name: 'Cold Coffee', price: 50, desc: 'Chilled signature Nescafe blended coffee' },
+                    { id: 302, name: 'Cheese Maggi', price: 40, desc: 'Classic Maggi loaded with processed cheese' },
+                    { id: 303, name: 'Aloo Patty', price: 25, desc: 'Freshly baked flaky crust with spicy potato filling' }
+                ]
+            }
+        ];
+
+        // State Variables
+        let vendors_db = JSON.parse(localStorage.getItem('cl_vendors')) || vendors;
+        let cart = JSON.parse(localStorage.getItem('cl_cart')) || [];
+        let userData = JSON.parse(localStorage.getItem('cl_user')) || null;
+        let orders = JSON.parse(localStorage.getItem('cl_orders')) || [];
+        let tempLocation = null;
+        const API_URL = '/api'; // FastAPI Backend Base
+        // --- SALON STATE VARIABLES ---
+        const salonServices = [
+            { id: 1, name: 'Men Haircut', duration: 30, price: 100, desc: 'Standard stylish haircut' },
+            { id: 2, name: 'Beard Trim & Shape', duration: 30, price: 50, desc: 'Professional beard styling' },
+            { id: 3, name: 'Hair Color (Basic)', duration: 60, price: 200, desc: 'Black/Brown color application' },
+            { id: 4, name: 'Head Massage', duration: 30, price: 80, desc: 'Relaxing oil head massage' }
+        ];
+        let salonBookings = JSON.parse(localStorage.getItem('cl_salon_bookings')) || [];
+        let selectedSalonService = null;
+        let selectedSalonDate = null;
+        let selectedSalonSlot = null;
+        let reminderInterval = null;
+
+        // --- 2. INITIALIZATION & ONBOARDING ---
+        window.onload = () => {
+            if (!userData) {
+                document.getElementById('onboarding-modal').classList.remove('hidden');
+            } else {
+                populateCheckoutDetails();
+                showPage('home');
+            }
+        };
+
+        // GPS Capture
+        function captureLocation() {
+            if (navigator.geolocation) {
+                const btn = document.getElementById('btn-location');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Fetching GPS...';
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        tempLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                        btn.className = "w-full bg-emerald-100 text-emerald-800 py-2.5 rounded-lg font-bold flex justify-center items-center border border-emerald-300";
+                        btn.innerHTML = '<i class="fas fa-check-circle mr-2 text-emerald-600"></i> Location Captured';
+                        document.getElementById('loc-status').classList.add('hidden');
+                    },
+                    (error) => {
+                        btn.innerHTML = '<i class="fas fa-map-marker-alt mr-2"></i> Try Again';
+                        const statusBox = document.getElementById('loc-status');
+                        statusBox.classList.remove('hidden');
+                        statusBox.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> GPS permission denied. You must allow location to verify you are within 1km of NIT Patna.';
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+
+        // Handle Profile Submission
+        document.getElementById('start-form').onsubmit = async (e) => {
+            e.preventDefault();
+
+            // STRICT REQUIREMENT: Location is mandatory
+            if (!tempLocation) {
+                document.getElementById('loc-status').classList.remove('hidden');
+                document.getElementById('loc-status').innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Please click "Use My Current Location" first.';
+                return;
+            }
+
+            const payload = {
+                name: document.getElementById('cust-name').value,
+                mobile: document.getElementById('cust-mobile').value,
+                address: document.getElementById('cust-address').value,
+                location: tempLocation
+            };
+
+            // Attempt to sync with FastAPI backend, fallback to LocalStorage if backend not running
+            try {
+                const res = await fetch(`${API_URL}/users`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    userData = await res.json();
+                } else { throw new Error("Backend unavailable"); }
+            } catch (err) {
+                console.warn("Backend not detected. Falling back to local state.");
+                userData = { ...payload, id: "local_" + Date.now() };
+            }
+
+            localStorage.setItem('cl_user', JSON.stringify(userData));
+            document.getElementById('onboarding-modal').classList.add('hidden');
+            populateCheckoutDetails();
+            showPage('home');
+        };
+
+        function populateCheckoutDetails() {
+            if (userData) {
+                document.getElementById('checkout-name').innerText = userData.name;
+                document.getElementById('checkout-mobile').innerText = userData.mobile;
+                document.getElementById('checkout-address-text').innerText = userData.address;
+            }
+        }
+
+        // --- 3. NAVIGATION & RENDERING ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if(pageId === 'home') renderVendors();
+            if(pageId === 'cart') renderCart();
+            if(pageId === 'vendor-dashboard') renderDashboard();
+            if(pageId === 'salon') initSalon();             // <--- NEW
+            if(pageId === 'my-bookings') renderMyBookings(); // <--- NEW
+            
+            window.scrollTo(0, 0);
+        }
+
+        async function renderVendors() {
+            const list = document.getElementById('vendor-list');
+            list.innerHTML = '<p class="col-span-3 text-center text-gray-500 py-10"><i class="fas fa-spinner fa-spin mr-2"></i> Loading restaurants...</p>';
+
+            try {
+                // Fetch from FastAPI Server
+                const response = await fetch(`${API_URL}/vendors`);
+                if (response.ok) {
+                    vendors_db = await response.json(); // Update the global list from the database
+                }
+            } catch (err) {
+                console.error("Backend not running, falling back to local vendors array.", err);
+                // If backend fails, vendors_db remains the default local array
+            }
+
+            list.innerHTML = vendors_db.map(v => `
+        <div class="bg-white rounded-2xl border shadow-sm hover:shadow-lg transition cursor-pointer overflow-hidden group flex flex-col" onclick="viewMenu(${v.id})">
+            <div class="h-40 overflow-hidden relative">
+                <img src="${v.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="text-xl font-bold text-gray-900">${v.name}</h3>
+                        <div class="flex space-x-2">
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">⭐ ${v.rating}</span>
+                            <button onclick="event.stopPropagation(); deleteShop(${v.id})" class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs hover:bg-red-200" title="Delete Shop">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">${v.category}</p>
+                </div>
+                <div class="flex items-center text-xs text-gray-500 font-medium bg-gray-50 p-2 rounded border">
+                    <i class="fas fa-clock text-emerald-500 mr-2"></i> Delivery: ${v.delivery_time}
+                </div>
+            </div>
+        </div>
+    `).join('');
+        }
+
+        function viewMenu(vendorId) {
+            const vendor = vendors_db.find(v => v.id == vendorId);
+            document.getElementById('menu-header').innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-6 bg-white p-6 rounded-2xl border shadow-sm">
+                    <img src="${vendor.image}" class="w-24 h-24 rounded-xl object-cover">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">${vendor.name}</h2>
+                        <div class="flex flex-wrap items-center text-sm text-gray-600 mt-2 gap-3">
+                            <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-utensils text-emerald-600 mr-1"></i> ${vendor.category}</span>
+                            <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-star text-amber-500 mr-1"></i> ${vendor.rating}</span>
+                            <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-motorcycle text-emerald-600 mr-1"></i> ${vendor.delivery_time}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('menu-items-list').innerHTML = vendor.menu.map(item => `
+                <div class="bg-white p-5 rounded-xl border flex justify-between items-center hover:border-emerald-300 transition shadow-sm">
+                    <div class="pr-4">
+                        <h4 class="font-bold text-gray-900 text-lg">${item.name}</h4>
+                        <p class="text-emerald-600 font-bold mb-1">₹${item.price}</p>
+                        <p class="text-xs text-gray-500 line-clamp-2">${item.desc}</p>
+                    </div>
+                    <button onclick="addToCart(${vendor.id}, ${item.id})" class="min-w-[90px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 hover:text-white transition">
+                        ADD +
+                    </button>
+                </div>
+            `).join('');
+            showPage('vendor-menu');
+        }
+
+        // --- 4. CART & CHECKOUT LOGIC ---
+        function addToCart(vId, pId) {
+            const vendor = vendors_db.find(v => v.id == vId);
+            const product = vendor.menu.find(p => p.id == pId);
+
+            // Check if cart has items from another vendor (Optional strict rule, skipped here for simplicity)
+            const existing = cart.find(c => c.id == pId);
+            if (existing) existing.qty++;
+            else cart.push({ ...product, vendorName: vendor.name, qty: 1 });
+
+            saveCart();
+            alert(`Added ${product.name} to cart!`);
+        }
+
+        function updateQty(idx, change) {
+            cart[idx].qty += change;
+            if (cart[idx].qty <= 0) cart.splice(idx, 1);
+            saveCart();
+            renderCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('cl_cart', JSON.stringify(cart));
+            document.getElementById('cart-count').innerText = cart.reduce((s, c) => s + c.qty, 0);
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-items');
+            const empty = document.getElementById('empty-cart-msg');
+
+            if (cart.length === 0) {
+                list.innerHTML = "";
+                empty.classList.remove('hidden');
+                document.getElementById('subtotal').innerText = '₹0';
+                document.getElementById('total-price').innerText = '₹0';
+            } else {
+                empty.classList.add('hidden');
+                list.innerHTML = cart.map((item, idx) => `
+                    <div class="flex items-center p-4 bg-white">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800">${item.name}</h4>
+                            <p class="text-xs text-emerald-600 font-medium">${item.vendorName}</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex border rounded-lg overflow-hidden items-center">
+                                <button onclick="updateQty(${idx}, -1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 font-bold text-gray-600">-</button>
+                                <span class="w-8 text-center text-sm font-bold">${item.qty}</span>
+                                <button onclick="updateQty(${idx}, 1)" class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 font-bold text-gray-600">+</button>
+                            </div>
+                            <span class="font-bold w-14 text-right">₹${item.price * item.qty}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                const sub = cart.reduce((s, c) => s + (c.price * c.qty), 0);
+                document.getElementById('subtotal').innerText = `₹${sub}`;
+                document.getElementById('total-price').innerText = `₹${sub + 15}`; // 15 is delivery fee
+            }
+        }
+
+        async function placeOrder() {
+            if (cart.length === 0) return alert("Your cart is empty!");
+
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            const subtotal = cart.reduce((s, c) => s + (c.price * c.qty), 0);
+            const total = subtotal + 15;
+            const orderId = 'ORD' + Math.floor(Math.random() * 90000 + 10000);
+
+            const orderPayload = {
+                order_id: orderId,
+                user: userData,
+                items: cart,
+                total: total,
+                payment_method: paymentMethod,
+                timestamp: new Date().toISOString()
+            };
+
+            // Attempt backend sync
+            try {
+                await fetch(`${API_URL}/orders`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderPayload)
+                });
+            } catch (err) {
+                console.log("Mocked order placed locally.");
+            }
+
+            // Show Confirmation
+            const methodText = paymentMethod === 'cod' ? 'Cash on Delivery' : 'UPI (Mock)';
+            document.getElementById('summary-details').innerHTML = `
+                <div class="flex justify-between border-b pb-2"><span>Order ID</span><span class="font-bold text-gray-900">${orderId}</span></div>
+                <div class="flex justify-between py-1"><span>Deliver To</span><span class="text-right ml-4 font-medium">${userData.address}</span></div>
+                <div class="flex justify-between py-1"><span>Payment</span><span class="text-emerald-600 font-bold">${methodText}</span></div>
+                <div class="flex justify-between border-t pt-2 mt-2 font-bold text-lg text-gray-900"><span>Total Paid</span><span>₹${total}</span></div>
+            `;
+            // Save locally for dashboard mockup
+            orders.push({
+                id: orderId,
+                customer: `${userData.name} (${userData.address})`,
+                items: cart.map(c => `${c.name} (x${c.qty})`).join(', '),
+                total: total
+            });
+            localStorage.setItem('cl_orders', JSON.stringify(orders));
+
+            cart = [];
+            saveCart();
+            showPage('confirmation');
+        }
+        // --- 5. DASHBOARD & ONBOARDING LOGIC ---
+        function renderDashboard() {
+            const table = document.getElementById('dashboard-orders-table');
+            const totalRev = orders.reduce((sum, o) => sum + o.total, 0);
+
+            document.getElementById('stat-orders').innerText = orders.length;
+            document.getElementById('stat-revenue').innerText = '₹' + totalRev;
+
+            if (orders.length === 0) {
+                table.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No orders yet.</td></tr>`;
+            } else {
+                table.innerHTML = orders.slice().reverse().map(o => `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500 font-bold">${o.id}</td>
+                        <td class="px-6 py-4 font-medium text-gray-800">${o.customer}</td>
+                        <td class="px-6 py-4 text-gray-600">${o.items}</td>
+                        <td class="px-6 py-4 font-bold text-emerald-600">₹${o.total}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+        function addMenuItemField() {
+            const container = document.getElementById('dynamic-menu-container');
+            const row = document.createElement('div');
+            row.className = 'flex space-x-2 menu-item-row items-center mt-3';
+            row.innerHTML = `
+                <input type="text" required placeholder="Item Name" class="w-2/3 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none item-name">
+                <input type="number" required placeholder="Price (₹)" class="w-1/3 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none item-price">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:bg-red-50 p-2 rounded text-sm transition" title="Remove Item"><i class="fas fa-trash"></i></button>
+            `;
+            container.appendChild(row);
+        }
+        function deleteShop(shopId) {
+            if (confirm("Are you sure you want to de-register this shop?")) {
+                // Remove from local storage
+                vendors_db = vendors_db.filter(v => v.id !== shopId);
+                localStorage.setItem('cl_vendors', JSON.stringify(vendors_db));
+                
+                // (Optional) If you have the backend connected, you would also add a fetch request here to delete from MongoDB:
+                // fetch(`${API_URL}/vendors/${shopId}`, { method: 'DELETE' });
+
+                alert("Shop deleted successfully.");
+                renderVendors();
+            }
+        }
+        document.getElementById('onboarding-form').onsubmit = async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('v-name').value;
+            const cat = document.getElementById('v-cat').value;
+
+            // 1. Gather all dynamic menu items
+            const menuRows = document.querySelectorAll('.menu-item-row');
+            let newMenu = [];
+            menuRows.forEach((row, index) => {
+                const pName = row.querySelector('.item-name').value;
+                const pPrice = parseInt(row.querySelector('.item-price').value);
+                if (pName && pPrice) {
+                    newMenu.push({
+                        id: Date.now() + index, // unique ID for item
+                        name: pName,
+                        price: pPrice,
+                        desc: "Freshly prepared and added by vendor."
+                    });
+                }
+            });
+
+            // 2. Handle Image Upload via FileReader (converts image to Base64 string to store locally)
+            const imageInput = document.getElementById('v-image');
+            let imageUrl = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600'; // Default Fallback image
+
+            if (imageInput.files && imageInput.files[0]) {
+                const file = imageInput.files[0];
+                imageUrl = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => resolve(event.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // 3. Create Vendor Object
+            const newVendor = {
+                id: Date.now(),
+                name: name,
+                category: cat,
+                rating: 5.0,
+                delivery_time: '15 mins',
+                image: imageUrl,
+                menu: newMenu
+            };
+
+            // 4. Save and Update UI
+            // ... (keep steps 1, 2, and 3 where you create newVendor) ...
+            
+            // 4. Save GLOBALLY via API
+            try {
+                const response = await fetch(`${API_URL}/vendors`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newVendor)
+                });
+                
+                if (response.ok) {
+                    alert("Shop successfully registered globally on CampusLocal!");
+                } else {
+                    throw new Error("Server rejected the request");
+                }
+            } catch (error) {
+                console.error("Backend failed. Saving locally only.", error);
+                // Fallback for local testing
+                vendors_db.push(newVendor);
+                localStorage.setItem('cl_vendors', JSON.stringify(vendors_db));
+                alert("Saved locally (Backend Server not connected).");
+            }
+            
+            e.target.reset();
+            
+            // Reset menu items to just one empty row
+            document.getElementById('dynamic-menu-container').innerHTML = `
+                <div class="flex space-x-2 menu-item-row items-center">
+                    <input type="text" required placeholder="Item Name (e.g. Veg Burger)" class="w-2/3 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none item-name">
+                    <input type="number" required placeholder="Price (₹)" class="w-1/3 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none item-price">
+                </div>
+            `;
+            
+            showPage('home');
+        };
+        // ==========================================
+        // 6. CAMPUS SALON SYSTEM & REMINDERS
+        // ==========================================
+
+        function initSalon() {
+            // Request Notification Permission for OS Native notifications
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+
+            // Set min date to today
+            const dateInput = document.getElementById('salon-date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+            if (!dateInput.value) dateInput.value = today;
+            
+            selectedSalonDate = dateInput.value;
+            selectedSalonService = null;
+            selectedSalonSlot = null;
+            updateSalonBookButton();
+
+            // Render Services
+            const list = document.getElementById('salon-services-list');
+            list.innerHTML = salonServices.map(s => `
+                <div id="srv-${s.id}" onclick="selectSalonService(${s.id})" class="p-4 rounded-xl border cursor-pointer transition flex justify-between items-center bg-white hover:border-emerald-400">
+                    <div>
+                        <h4 class="font-bold text-gray-900">${s.name}</h4>
+                        <p class="text-xs text-gray-500">${s.desc} • <i class="far fa-clock"></i> ${s.duration} mins</p>
+                    </div>
+                    <div class="font-bold text-emerald-600">₹${s.price}</div>
+                </div>
+            `).join('');
+
+            renderSalonSlots();
+        }
+
+        function selectSalonService(id) {
+            selectedSalonService = salonServices.find(s => s.id === id);
+            
+            // UI Highlight
+            salonServices.forEach(s => {
+                const el = document.getElementById(`srv-${s.id}`);
+                el.classList.remove('border-emerald-600', 'bg-emerald-50', 'shadow-md');
+                el.classList.add('border-gray-200', 'bg-white');
+            });
+            const activeEl = document.getElementById(`srv-${id}`);
+            activeEl.classList.remove('border-gray-200', 'bg-white');
+            activeEl.classList.add('border-emerald-600', 'bg-emerald-50', 'shadow-md');
+            
+            updateSalonBookButton();
+        }
+
+        function renderSalonSlots() {
+            selectedSalonDate = document.getElementById('salon-date').value;
+            selectedSalonSlot = null; // Reset slot when date changes
+            updateSalonBookButton();
+
+            const container = document.getElementById('salon-slots-container');
+            if (!selectedSalonDate) {
+                container.innerHTML = '<p class="col-span-3 text-xs text-gray-500">Please select a date first.</p>';
+                return;
+            }
+
+            // Generate slots 09:00 to 17:30 (30 min intervals)
+            const slots = [];
+            for (let i = 9; i <= 17; i++) {
+                slots.push(`${i < 10 ? '0'+i : i}:00`);
+                slots.push(`${i < 10 ? '0'+i : i}:30`);
+            }
+
+            // Get booked slots for the selected date to prevent Double Booking
+            const bookedSlots = salonBookings
+                .filter(b => b.date === selectedSalonDate && b.status !== 'cancelled')
+                .map(b => b.startTime);
+
+            // Time validation (Don't allow booking past slots today)
+            const now = new Date();
+            const isToday = selectedSalonDate === now.toISOString().split('T')[0];
+
+            container.innerHTML = slots.map(time => {
+                let isBooked = bookedSlots.includes(time);
+                
+                // Block past times if today
+                if (isToday && !isBooked) {
+                    const [hrs, mins] = time.split(':').map(Number);
+                    if (now.getHours() > hrs || (now.getHours() === hrs && now.getMinutes() >= mins)) {
+                        isBooked = true;
+                    }
+                }
+
+                if (isBooked) {
+                    return `<button disabled class="py-2 rounded border bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed">${time}</button>`;
+                }
+                return `<button id="slot-${time.replace(':','')}" onclick="selectSalonSlot('${time}')" class="py-2 rounded border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:border-emerald-500 transition slot-btn">${time}</button>`;
+            }).join('');
+        }
+
+        function selectSalonSlot(time) {
+            selectedSalonSlot = time;
+            document.querySelectorAll('.slot-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-600');
+                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            });
+            const activeBtn = document.getElementById(`slot-${time.replace(':','')}`);
+            activeBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+            activeBtn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-600');
+            
+            updateSalonBookButton();
+        }
+
+        function updateSalonBookButton() {
+            const btn = document.getElementById('btn-book-salon');
+            btn.disabled = !(selectedSalonService && selectedSalonDate && selectedSalonSlot);
+        }
+
+        function confirmSalonBooking() {
+            if (!userData) {
+                alert("Please complete your profile first.");
+                document.getElementById('onboarding-modal').classList.remove('hidden');
+                return;
+            }
+
+            const bookingId = 'BKG' + Math.floor(Math.random() * 90000 + 10000);
+            
+            // Calculate end time
+            const [hrs, mins] = selectedSalonSlot.split(':').map(Number);
+            const endTimeObj = new Date(0, 0, 0, hrs, mins + selectedSalonService.duration);
+            const endHrs = endTimeObj.getHours().toString().padStart(2, '0');
+            const endMins = endTimeObj.getMinutes().toString().padStart(2, '0');
+            const endTime = `${endHrs}:${endMins}`;
+
+            const newBooking = {
+                id: bookingId,
+                customerName: userData.name,
+                service: selectedSalonService.name,
+                price: selectedSalonService.price,
+                date: selectedSalonDate,
+                startTime: selectedSalonSlot,
+                endTime: endTime,
+                status: 'upcoming',
+                reminderSent: false,
+                created: new Date().toISOString()
+            };
+
+            salonBookings.push(newBooking);
+            localStorage.setItem('cl_salon_bookings', JSON.stringify(salonBookings));
+
+            document.getElementById('salon-summary-details').innerHTML = `
+                <div class="flex justify-between border-b pb-2"><span>Booking ID</span><span class="font-bold text-gray-900">${bookingId}</span></div>
+                <div class="flex justify-between py-1"><span>Service</span><span class="font-medium text-right">${newBooking.service}</span></div>
+                <div class="flex justify-between py-1"><span>Date</span><span class="font-medium text-emerald-600">${newBooking.date}</span></div>
+                <div class="flex justify-between py-1"><span>Time</span><span class="font-medium text-emerald-600">${newBooking.startTime} - ${newBooking.endTime}</span></div>
+                <div class="flex justify-between border-t pt-2 mt-2 font-bold text-lg text-gray-900"><span>Amount (Pay at Salon)</span><span>₹${newBooking.price}</span></div>
+            `;
+
+            showPage('salon-confirmation');
+            startReminderSystem(); // Ensure loop is running
+        }
+
+        function renderMyBookings() {
+            const upcomingList = document.getElementById('upcoming-bookings-list');
+            const pastList = document.getElementById('past-bookings-list');
+            
+            const now = new Date();
+            let upcomingHTML = '';
+            let pastHTML = '';
+
+            // Sort newest first
+            const sortedBookings = [...salonBookings].sort((a, b) => new Date(b.created) - new Date(a.created));
+
+            sortedBookings.forEach(b => {
+                // Determine if past or upcoming
+                const slotDateTime = new Date(`${b.date}T${b.startTime}:00`);
+                let isPast = (slotDateTime < now) || b.status === 'cancelled';
+                
+                // Auto-expire past bookings that are still marked upcoming
+                if (isPast && b.status === 'upcoming' && slotDateTime < now) {
+                    b.status = 'completed';
+                    localStorage.setItem('cl_salon_bookings', JSON.stringify(salonBookings));
+                }
+
+                const cardHTML = `
+                    <div class="p-4 bg-white flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div class="mb-3 md:mb-0">
+                            <div class="flex items-center space-x-3 mb-1">
+                                <h4 class="font-bold text-gray-900">${b.service}</h4>
+                                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded ${b.status === 'upcoming' ? 'bg-amber-100 text-amber-700' : (b.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600')}">${b.status}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-1"><i class="fas fa-calendar-alt mr-1"></i> ${b.date} | <i class="fas fa-clock mr-1"></i> ${b.startTime} - ${b.endTime}</p>
+                            <p class="text-xs text-gray-400">ID: ${b.id}</p>
+                        </div>
+                        ${b.status === 'upcoming' ? `
+                            <button onclick="cancelSalonBooking('${b.id}')" class="text-xs border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded font-medium transition">Cancel Appt</button>
+                        ` : ''}
+                    </div>
+                `;
+
+                if (isPast) pastHTML += cardHTML;
+                else upcomingHTML += cardHTML;
+            });
+
+            upcomingList.innerHTML = upcomingHTML || '<div class="p-6 text-center text-sm text-gray-500">No upcoming appointments.</div>';
+            pastList.innerHTML = pastHTML || '<div class="p-6 text-center text-sm text-gray-500">No past appointments.</div>';
+        }
+
+        function cancelSalonBooking(bookingId) {
+            if(confirm("Are you sure you want to cancel this appointment?")) {
+                const bIdx = salonBookings.findIndex(b => b.id === bookingId);
+                if(bIdx > -1) {
+                    salonBookings[bIdx].status = 'cancelled';
+                    localStorage.setItem('cl_salon_bookings', JSON.stringify(salonBookings));
+                    renderMyBookings();
+                }
+            }
+        }
+
+        // ==========================================
+        // 7. BACKGROUND NOTIFICATION / REMINDER LOOP
+        // ==========================================
+        
+        function showToastNotification(title, message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-white border-l-4 border-emerald-500 shadow-xl p-4 rounded-lg flex items-start space-x-3 w-80 transform transition-all duration-500 translate-x-full';
+            toast.innerHTML = `
+                <div class="bg-emerald-100 text-emerald-600 rounded-full p-2"><i class="fas fa-bell"></i></div>
+                <div class="flex-1">
+                    <h5 class="font-bold text-sm text-gray-900">${title}</h5>
+                    <p class="text-xs text-gray-600 mt-1">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(toast);
+            
+            // Slide in animation
+            setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+            
+            // Auto remove after 10 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 500);
+            }, 10000);
+
+            // Try OS level notification
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, { body: message, icon: "https://cdn-icons-png.flaticon.com/512/3237/3237472.png" });
+            }
+        }
+
+        function checkSalonReminders() {
+            const now = new Date();
+            let stateChanged = false;
+
+            salonBookings.forEach(b => {
+                if (b.status === 'upcoming' && !b.reminderSent) {
+                    const slotDateTime = new Date(`${b.date}T${b.startTime}:00`);
+                    const timeDiffMins = (slotDateTime - now) / (1000 * 60);
+
+                    // If appointment is exactly or less than 30 mins away (but hasn't passed)
+                    if (timeDiffMins <= 30 && timeDiffMins > 0) {
+                        showToastNotification(
+                            "Salon Appointment in 30 Mins",
+                            `Your ${b.service} appointment is at ${b.startTime}. Please reach the campus salon on time.`
+                        );
+                        b.reminderSent = true;
+                        stateChanged = true;
+                    }
+                }
+            });
+
+            if(stateChanged) {
+                localStorage.setItem('cl_salon_bookings', JSON.stringify(salonBookings));
+            }
+        }
+
+        function startReminderSystem() {
+            if (!reminderInterval) {
+                // Check immediately, then every 1 minute
+                checkSalonReminders();
+                reminderInterval = setInterval(checkSalonReminders, 60000); 
+            }
+        }
+        // Initial setup calls
+        saveCart();
+        renderVendors();
+        startReminderSystem();
+    </script>
+</body>
+
+</html>
